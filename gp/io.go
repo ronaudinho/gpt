@@ -6,56 +6,66 @@ import (
 	"golang.org/x/text/encoding/charmap"
 )
 
-func readByte(data []byte, seek *uint) byte {
-	if uint(len(data)) < *seek {
+func readByte(data []byte, off *uint) byte {
+	if uint(len(data)) < *off {
 		panic("EOF")
 	}
-	b := data[*seek]
-	*seek += 1
+	b := data[*off]
+	*off += 1
 	return b
 }
 
-func readSignedByte(data []byte, seek *uint) byte {
-	return 0
+func readSignedByte(data []byte, off *uint) int8 {
+	if uint(len(data)) < *off {
+		panic("EOF")
+	}
+	b := data[*off]
+	*off += 1
+	return int8(b)
 }
 
-func readBool(data []byte, seek *uint) bool {
+func readBool(data []byte, off *uint) bool {
 	return false
 }
 
-func readShort(data []byte, seek *uint) uint16 {
+func readShort(data []byte, off *uint) uint16 {
 	return 0
 }
 
-func readInt(data []byte, seek *uint) uint32 {
-	if uint(len(data)) < *seek+4 {
+func readInt(data []byte, off *uint) uint32 {
+	if uint(len(data)) < *off+4 {
 		panic("EOF")
 	}
-	n := []byte{data[*seek], data[*seek+1], data[*seek+2], data[*seek+3]}
-	*seek += 4
+	n := []byte{data[*off], data[*off+1], data[*off+2], data[*off+3]}
+	*off += 4
 	return binary.LittleEndian.Uint32(n)
 }
 
-func readIntByteSizeString(data []byte, seek *uint) string {
-	s := readInt(data, seek) - 1
-	return readByteSizeString(data, seek, uint(s))
+func readIntSizeString(data []byte, off *uint) string {
+	s := readInt(data, off)
+	return readString(data, off, uint(s), 0)
 }
 
-func readByteSizeString(data []byte, seek *uint, size uint) string {
-	length := uint(readByte(data, seek))
-	return readString(data, seek, size, uint(length))
+func readIntByteSizeString(data []byte, off *uint) string {
+	s := readInt(data, off) - 1
+	return readByteSizeString(data, off, uint(s))
 }
 
-func readString(data []byte, seek *uint, size, length uint) string {
+func readByteSizeString(data []byte, off *uint, size uint) string {
+	length := uint(readByte(data, off))
+	return readString(data, off, size, uint(length))
+}
+
+func readString(data []byte, off *uint, size, length uint) string {
 	if length == 0 {
 		length = size
 	}
 	dec := charmap.Windows1252.NewDecoder()
-	b, err := dec.Bytes(data[*seek : *seek+length])
+	b, err := dec.Bytes(data[*off : *off+length])
 	if err != nil {
 		panic(err)
 	}
-	*seek += size
+	*off += size
 	return string(b)
 }
 
@@ -64,9 +74,9 @@ var VERSIONS = []Version{
 	Version{"FICHIER GUITAR PRO v5.10", [3]uint{5, 2, 0}, false},
 }
 
-func readVersionString(data []byte, seek *uint) Version {
+func readVersionString(data []byte, off *uint) Version {
 	v := Version{
-		Data: readByteSizeString(data, seek, 30),
+		Data: readByteSizeString(data, off, 30),
 	}
 
 	for _, x := range VERSIONS {

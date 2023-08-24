@@ -10,7 +10,7 @@ type Clipboard struct {
 	// TODO
 }
 
-func (s *Song) readClipboard(data []byte, seek *uint) Clipboard {
+func (s *Song) readClipboard(data []byte, off *uint) Clipboard {
 	var c Clipboard
 	if !s.Version.Clipboard {
 		return c
