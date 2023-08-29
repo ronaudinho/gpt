@@ -11,11 +11,17 @@ type Song struct {
 	Copyright    string
 	Writer       string
 	Instructions string
+	Date         string
+	Transcriber  string
+	Comments     string
 	Notice       []string
-	Lyrics       Lyrics
+
+	Lyrics    Lyrics
+	Tempo     int16
+	TempoName string
+	HideTempo bool
+
 	MasterEffect RseMasterEffect
 
-	Date        string
-	Transcriber string
-	Comments    string
+	PageSetup PageSetup
 }

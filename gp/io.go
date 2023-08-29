@@ -25,22 +25,33 @@ func readSignedByte(data []byte, off *uint) int8 {
 }
 
 func readBool(data []byte, off *uint) bool {
-	return false
+	if uint(len(data)) < *off {
+		panic("EOF")
+	}
+	b := data[*off]
+	*off += 1
+	return b != 0
 }
 
-func readShort(data []byte, off *uint) uint16 {
-	return 0
+func readShort(data []byte, off *uint) int16 {
+	if uint(len(data)) < *off+2 {
+		panic("EOF")
+	}
+	n := []byte{data[*off], data[*off+1]}
+	*off += 2
+	return int16(binary.LittleEndian.Uint16(n))
 }
 
-func readInt(data []byte, off *uint) uint32 {
+func readInt(data []byte, off *uint) int32 {
 	if uint(len(data)) < *off+4 {
 		panic("EOF")
 	}
 	n := []byte{data[*off], data[*off+1], data[*off+2], data[*off+3]}
 	*off += 4
-	return binary.LittleEndian.Uint32(n)
+	return int32(binary.LittleEndian.Uint32(n))
 }
 
+// TODO might have problem
 func readIntSizeString(data []byte, off *uint) string {
 	s := readInt(data, off)
 	return readString(data, off, uint(s), 0)

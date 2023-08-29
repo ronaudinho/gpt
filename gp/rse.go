@@ -1,5 +1,11 @@
 package gp
 
+import (
+	"fmt"
+
+	"golang.org/x/mod/semver"
+)
+
 type RseEqualizer struct {
 	Knobs []float32
 	Gain  float32
@@ -13,14 +19,19 @@ type RseMasterEffect struct {
 
 func (s *Song) readRseMasterEffect(data []byte, off *uint) {
 	var me RseMasterEffect
-	// version > 5.0.0
-	if s.Version.Number[0] >= 5 &&
-		s.Version.Number[1] >= 0 &&
-		s.Version.Number[2] > 1 {
-		me.Volume = float32(readInt(data, off))
-		readInt(data, off) // ???
-		me.Equalizer = readRseEqualizer(data, off, 11)
+	// version >= 5.1.0
+	sv := fmt.Sprintf("v%d.%d.%d",
+		s.Version.Number[0],
+		s.Version.Number[1],
+		s.Version.Number[2],
+	)
+	if semver.Compare(sv, "v5.1.0") < 0 {
+		return
 	}
+	me.Volume = float32(readInt(data, off))
+	readInt(data, off) // ???
+	me.Equalizer = readRseEqualizer(data, off, 11)
+	s.MasterEffect = me
 }
 
 func readRseEqualizer(data []byte, off *uint, knobs byte) RseEqualizer {

@@ -1,5 +1,11 @@
 package gp
 
+import (
+	"fmt"
+
+	"golang.org/x/mod/semver"
+)
+
 func (s *Song) ReadGP5(data []byte) {
 	off := new(uint)
 	s.Version = readVersionString(data, off)
@@ -7,6 +13,17 @@ func (s *Song) ReadGP5(data []byte) {
 	s.readInfo(data, off)
 	s.readLyrics(data, off)
 	s.readRseMasterEffect(data, off)
+	s.readPageSetup(data, off)
+	s.TempoName = readIntSizeString(data, off)
+	s.Tempo = int16(readInt(data, off))
+	sv := fmt.Sprintf("v%d.%d.%d",
+		s.Version.Number[0],
+		s.Version.Number[1],
+		s.Version.Number[2],
+	)
+	if semver.Compare(sv, "v5.0.0") > 0 {
+		s.HideTempo = readBool(data, off)
+	}
 }
 
 func (s *Song) readInfo(data []byte, off *uint) {
@@ -25,7 +42,7 @@ func (s *Song) readInfo(data []byte, off *uint) {
 	s.Instructions = readIntByteSizeString(data, off)
 	nc := readInt(data, off)
 	if nc > 0 {
-		for i := uint32(0); i < nc; i++ {
+		for i := int32(0); i < nc; i++ {
 			// TODO ordering maybe
 			s.Notice = append(s.Notice, readIntByteSizeString(data, off))
 		}
