@@ -20,6 +20,8 @@ type Song struct {
 	Tempo     int16
 	TempoName string
 	HideTempo bool
+	Key       KeySignature
+	Channels  []MidiChannel
 
 	MasterEffect RseMasterEffect
 

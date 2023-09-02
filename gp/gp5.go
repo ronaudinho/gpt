@@ -24,6 +24,9 @@ func (s *Song) ReadGP5(data []byte) {
 	if semver.Compare(sv, "v5.0.0") > 0 {
 		s.HideTempo = readBool(data, off)
 	}
+	s.Key.Key = readSignedByte(data, off)
+	readInt(data, off) // octave
+	s.readMidiChannels(data, off)
 }
 
 func (s *Song) readInfo(data []byte, off *uint) {

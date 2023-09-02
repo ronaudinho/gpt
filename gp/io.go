@@ -2,6 +2,7 @@ package gp
 
 import (
 	"encoding/binary"
+	"strings"
 
 	"golang.org/x/text/encoding/charmap"
 )
@@ -51,7 +52,6 @@ func readInt(data []byte, off *uint) int32 {
 	return int32(binary.LittleEndian.Uint32(n))
 }
 
-// TODO might have problem
 func readIntSizeString(data []byte, off *uint) string {
 	s := readInt(data, off)
 	return readString(data, off, uint(s), 0)
@@ -74,7 +74,10 @@ func readString(data []byte, off *uint, size, length uint) string {
 	dec := charmap.Windows1252.NewDecoder()
 	b, err := dec.Bytes(data[*off : *off+length])
 	if err != nil {
-		panic(err)
+		s := &strings.Builder{}
+		s.Write(data[*off : *off+length])
+		*off += size
+		return s.String()
 	}
 	*off += size
 	return string(b)

@@ -11,16 +11,17 @@ type Line struct {
 	Text            string
 }
 
-func (s *Song) readLyrics(data []byte, off *uint) {
+func (s *Song) readLyrics(data []byte, seek *uint) {
 	l := Lyrics{
-		TrackChoice: byte(readInt(data, off)),
+		TrackChoice: byte(readInt(data, seek)),
 	}
-	for i := 0; i < 5; i++ {
-		sm := uint16(readInt(data, off))
+	for i := uint8(0); i < 5; i++ {
+		sm := uint16(readInt(data, seek))
 		l.Lines = append(l.Lines, Line{
-			I:               byte(i),
+			I:               i,
 			StartingMeasure: sm,
-			Text:            readIntSizeString(data, off),
+			Text:            readIntSizeString(data, seek),
 		})
 	}
+	s.Lyrics = l
 }
