@@ -16,13 +16,16 @@ type Song struct {
 	Comments     string
 	Notice       []string
 
-	Lyrics    Lyrics
-	Tempo     int16
-	TempoName string
-	HideTempo bool
-	Key       KeySignature
-	Channels  []MidiChannel
+	Tracks         []Track
+	MeasureHeaders []MeasureHeader
+	Channels       []MidiChannel
+	Lyrics         Lyrics
+	Tempo          int16
+	HideTempo      bool
+	TempoName      string
+	Key            KeySignature
 
+	TripletFeel  TripletFeel
 	MasterEffect RseMasterEffect
 
 	PageSetup PageSetup

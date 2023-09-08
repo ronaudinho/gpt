@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 
@@ -21,5 +20,5 @@ func main() {
 	song := &gp.Song{}
 	song.ReadGP5(b)
 	b, _ = json.MarshalIndent(song, "", "  ")
-	fmt.Println(string(b))
+	os.WriteFile("out.json", b, 0755)
 }

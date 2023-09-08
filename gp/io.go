@@ -102,3 +102,11 @@ func readVersionString(data []byte, off *uint) Version {
 	}
 	return v
 }
+
+func readColor(data []byte, off *uint) int32 {
+	r := int32(readByte(data, off))
+	g := int32(readByte(data, off))
+	b := int32(readByte(data, off))
+	*off += 1
+	return r*65536 + g*256 + b
+}

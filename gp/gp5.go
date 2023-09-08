@@ -27,6 +27,12 @@ func (s *Song) ReadGP5(data []byte) {
 	s.Key.Key = readSignedByte(data, off)
 	readInt(data, off) // octave
 	s.readMidiChannels(data, off)
+	signs, fromSigns := s.readDirections(data, off)
+	s.MasterEffect.Reverb = float32(readInt(data, off))
+	measureCount := uint(readInt(data, off))
+	trackCount := uint(readInt(data, off))
+	s.readMeasureHeadersV5(data, off, measureCount, signs, fromSigns)
+	s.readTracksV5(data, off, trackCount)
 }
 
 func (s *Song) readInfo(data []byte, off *uint) {
